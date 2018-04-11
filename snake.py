@@ -5,6 +5,15 @@ Created on Mon Apr  9 22:04:59 2018
 @author: Ronit
 """
 
+#TODO: clean up code
+#TODO: make it modular
+#TODO: add class method for direction and speed updata
+#TODO: convert to singleton/static class
+#TODO: remove hard coding
+#TODO: add constraint for self-intersection
+#TODO: clean up display draws
+#TODO: Overlays and text
+
 import pygame
 import random
 
@@ -12,9 +21,10 @@ display_width = 640
 display_height = 480
 
 gameDisplay = pygame.display.set_mode((display_width,display_height))
-pygame.display.set_caption('Snake')
+pygame.display.set_caption('Snakey McSnakeface')
 black = (0,0,0)
 white = (255,255,255)
+clock = pygame.time.Clock()
 
 class Snake:
     
@@ -58,12 +68,22 @@ class Snake:
         y_new = self.tail[1] - self.dir_y*10
         self.tail = [self.body[0][0],self.body[0][1]]
         self.body.append((x_new,y_new))
+    
+    def update_vector(self,dir_x,dir_y,speed):
+        self.dir_x = dir_x
+        self.dir_y = dir_y
+        self.speed = speed
         
+class Food:
+    
+    def __init__(self,display_width,display_height):
+        self.spawn_width = display_width - 2*10
+        self.spawn_height = display_height - 2*10
 
-pixArr = pygame.PixelArray(gameDisplay)
-clock = pygame.time.Clock()
-
-#pygame.draw.rect(gameDisplay,white,(x,y,40,40*eats))
+    def spawn(self):
+        x = random.sample(range(self.spawn_width),1)[0]
+        y = random.sample(range(self.spawn_height),1)[0]
+        return x,y
 # NOTE: coordinates are set as quadrant 1
     
 
@@ -71,12 +91,11 @@ clock = pygame.time.Clock()
 
 def game_loop(display_width,display_height):
     snake = Snake(display_width,display_height)
+    food = Food(display_width,display_height)
     exiting = False
     gameDisplay.fill(black)
     x,y = snake.random_start()
-    x_food,y_food = random.sample(range(display_width),1)[0], random.sample(range(display_height),1)[0]
-
-    pygame.draw.rect(gameDisplay,(255,0,0),(x_food,y_food,10,10))
+    x_food,y_food = food.spawn()
     
     while not exiting:
         x = x+snake.dir_x*snake.speed[0]
@@ -90,27 +109,19 @@ def game_loop(display_width,display_height):
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    snake.speed = [10,0]
-                    snake.dir_x = -1
-                    snake.dir_y = 0
+                    snake.update_vector(-1,0,[10,0])
                 if event.key == pygame.K_RIGHT:
-                    snake.speed = [10,0]
-                    snake.dir_x = 1
-                    snake.dir_y = 0
+                    snake.update_vector(1,0,[10,0])
                 if event.key == pygame.K_UP:
-                    snake.speed = [0,10]
-                    snake.dir_x = 0
-                    snake.dir_y = -1
+                    snake.update_vector(0,-1,[0,10])
                 if event.key == pygame.K_DOWN:
-                    snake.speed = [0,10]
-                    snake.dir_x = 0
-                    snake.dir_y = 1
+                    snake.update_vector(0,1,[0,10])
         if x+10 >= display_width or x <= 0 or y <=0 or y >=display_height-10:
             x,y = snake.random_start()
             
         if pygame.Rect((x,y),(10,10)).colliderect(pygame.Rect((x_food,y_food),(10,10))):
             snake.grow()
-            x_food,y_food = random.sample(range(display_width),1)[0], random.sample(range(display_height),1)[0]
+            x_food,y_food = food.spawn()
         
         pygame.display.update()
         clock.tick(10)

@@ -11,9 +11,8 @@ Created on Mon Apr  9 22:04:59 2018
 #TODO: convert to singleton/static class
 #TODO: remove hard coding
 #TODO: add constraint for self-intersection
-#TODO: clean up display draws
 #TODO: Overlays and text
-
+#TODO: random white box on food spawn??
 import pygame
 import random
 
@@ -52,8 +51,6 @@ class Snake:
         return x,y
 
     def move_forward(self,x,y):
-        x +=self.dir_x*self.speed[0]
-        y +=self.dir_y*self.speed[0]
         self.body.pop(0)
         self.body.append((x,y))
         
